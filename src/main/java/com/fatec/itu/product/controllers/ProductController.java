@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.fatec.itu.product.dtos.ProductRequest;
+import com.fatec.itu.product.dtos.ProductResponse;
 import com.fatec.itu.product.entities.Product;
 import com.fatec.itu.product.services.ProductService;
 
@@ -28,12 +30,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
+    public ResponseEntity<List<ProductResponse>> getAll() {
         return ResponseEntity.ok(service.findAll());
     }
     
     @GetMapping("{id}")
-    public ResponseEntity<Product> getById(@PathVariable long id){
+    public ResponseEntity<ProductResponse> getById(@PathVariable long id){
         return ResponseEntity.ok(service.findById(id));
     }
     
@@ -44,14 +46,14 @@ public class ProductController {
     }
     
     @PostMapping
-    public ResponseEntity<Product> save(@RequestBody Product product)
+    public ResponseEntity<ProductResponse> save(@RequestBody ProductRequest product)
     {
-        Product p = service.save(product);
+        ProductResponse p = service.save(product);
        
         URI location = ServletUriComponentsBuilder
                        .fromCurrentRequest()
                        .path("/{id}")
-                       .buildAndExpand(p.getId())
+                       .buildAndExpand(p.id())
                        .toUri();
         
         return ResponseEntity.created(location).body(p);
@@ -61,7 +63,7 @@ public class ProductController {
 
     @PutMapping("{id}")
     public ResponseEntity<Void> update(@PathVariable long id,
-                                       @RequestBody Product product)
+                                       @RequestBody ProductRequest product)
     {
             service.update(product, id);
             return ResponseEntity.noContent().build();

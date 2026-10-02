@@ -4,7 +4,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.fatec.itu.product.dtos.ProductRequest;
+import com.fatec.itu.product.dtos.ProductResponse;
 import com.fatec.itu.product.entities.Product;
+import com.fatec.itu.product.mappers.ProductMapper;
 import com.fatec.itu.product.repositories.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -18,13 +21,19 @@ public class ProductService {
         this.repository = repository;
     }
 
-     public Product findById(Long id) {
+     public ProductResponse findById(Long id) {
         return repository.findById(id)
+                         .map(ProductMapper::toDTO)   
                          .orElseThrow(() -> new EntityNotFoundException());
+     
     }
 
-    public List<Product> findAll(){
-        return repository.findAll();
+    public List<ProductResponse> findAll(){
+        return repository.findAll()
+                         .stream()
+                         .map(ProductMapper::toDTO)
+                         .toList();
+                         
     }
 
     public void deleteById(long id) {
@@ -35,19 +44,20 @@ public class ProductService {
 
     }
 
-    public Product save(Product product)
+    public ProductResponse save(ProductRequest product)
     {
-         return repository.save(product);
+         Product p = repository.save(ProductMapper.toEntity(product));
+         return ProductMapper.toDTO(p);   
     }
 
-    public void update(Product product, Long id)
+    public void update(ProductRequest product, Long id)
     {
         Product p  = repository.findById(id)
                                .orElseThrow(() -> new EntityNotFoundException("Produto não cadastrado"));
 
-        p.setDescription(product.getDescription());                                
-        p.setName(product.getName());
-        p.setPrice(product.getPrice());
+        p.setDescription(product.description());                                
+        p.setName(product.name());
+        p.setPrice(product.price());
 
         repository.save(p);
 
